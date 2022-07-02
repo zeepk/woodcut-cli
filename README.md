@@ -1,6 +1,4 @@
-# CLI Tool
-
-Run commands with `go run .`
+# Woodcut CLI Tool
 
 ## Commands
 
