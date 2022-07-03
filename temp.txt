@@ -1,0 +1,228 @@
+package main
+
+import (
+	"bytes"
+	"encoding/json"
+	"flag"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"os"
+	"strconv"
+	"strings"
+	"text/tabwriter"
+
+	"github.com/dustin/go-humanize"
+)
+
+// package utils
+var HiscoresURL string = "https://secure.runescape.com/m=hiscore/index_lite.ws?player="
+var GrandExchangeURL string = "https://services.runescape.com/m=itemdb_rs/api/catalogue/detail.json?item="
+var ItemIDURL string = "https://api.weirdgloop.org/exchange/history/rs/latest?name="
+
+// structs
+type ItemIDResponse struct {
+	ID    string `json:"id"`
+	Price int    `json:"price"`
+}
+
+// type ItemCurrentPrice struct {
+// 	Price string `json:"price"`
+// }
+type ItemDataResponse struct {
+	Icon      string `json:"icon"`
+	IconLarge string `json:"icon_large"`
+	Name      string `json:"name"`
+	Price     int
+	// Current   ItemCurrentPrice `json:"current"`
+}
+
+// array of strings
+var Skills []string = []string{"Overall", "Attack", "Defence", "Strength", "Hitpoints", "Ranged", "Prayer", "Magic", "Cooking", "Woodcutting", "Fletching", "Fishing", "Firemaking", "Crafting", "Smithing", "Mining", "Herblore", "Agility", "Thieving", "Slayer", "Farming", "Runecrafting", "Hunter", "Construction", "Summoning", "Dungeoneering", "Divination", "Invention"}
+
+func FetchHiscoreData(username string) string {
+	fmt.Println("Calling API...")
+	client := &http.Client{}
+	var url string = HiscoresURL + username
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+	resp, err := client.Do(req)
+	defer resp.Body.Close()
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+	if resp.StatusCode == 404 {
+		fmt.Println("Error: username not found in official hiscores")
+		os.Exit(1)
+	}
+
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(resp.Body)
+	responseString := buf.String()
+	return responseString
+}
+
+func PrintHiscoreData(responseString string) {
+	w := tabwriter.NewWriter(os.Stdout, 1, 1, 1, ' ', 0)
+	var responseLines []string = strings.Split(responseString, "\n")
+	for i := 0; i < len(Skills); i++ {
+		var responseLineItems []string = strings.Split(responseLines[i], ",")
+		xp, err := strconv.ParseInt(responseLineItems[2], 10, 64)
+		if err != nil {
+			fmt.Print(err.Error())
+			continue
+		}
+
+		var xpString = humanize.Comma(xp)
+		fmt.Fprintln(w, Skills[i], "\t", xpString+"xp")
+	}
+	w.Flush()
+	return
+}
+
+func PrintGEData(item ItemDataResponse) {
+	w := tabwriter.NewWriter(os.Stdout, 1, 1, 1, ' ', 0)
+	var price = humanize.Comma(int64(item.Price))
+
+	fmt.Fprintln(w, "Item:", "\t", item.Name)
+	fmt.Fprintln(w, "Price:", "\t", price+"gp")
+	w.Flush()
+	return
+}
+
+func FetchGEData(itemID int) ItemDataResponse {
+	fmt.Println("Calling API...")
+	client := &http.Client{}
+	var url string = GrandExchangeURL + strconv.Itoa(itemID)
+	req, err := http.NewRequest("GET", url, nil)
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Content-Type", "application/json")
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+	resp, err := client.Do(req)
+	defer resp.Body.Close()
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+	if resp.StatusCode == 404 {
+		fmt.Println("Error: item not found on the Grand Exchange")
+		os.Exit(1)
+	}
+
+	body, readErr := io.ReadAll(resp.Body)
+	if readErr != nil {
+		log.Fatal(readErr)
+	}
+
+	var responseObject = make(map[string]ItemDataResponse)
+	json.Unmarshal(body, &responseObject)
+	return responseObject["item"]
+}
+
+func FetchItemID(itemName string) (int, int) {
+	fmt.Println("Calling API...")
+	// initialize http client
+	client := &http.Client{}
+
+	// generate URL
+	var url string = ItemIDURL + itemName
+
+	// create request
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+
+	// execute request
+	resp, err := client.Do(req)
+	// defer ~= await the line above
+	defer resp.Body.Close()
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+	if resp.StatusCode == 404 {
+		fmt.Println("Error: item not found in the items database")
+		os.Exit(1)
+	}
+
+	// TODO: learn more about IO and buffers
+	body, readErr := io.ReadAll(resp.Body)
+	if readErr != nil {
+		log.Fatal(readErr)
+	}
+
+	// unmarshal the json into a map of items (even though we only expect 1)
+	var responseObject = make(map[string]ItemIDResponse)
+	json.Unmarshal(body, &responseObject)
+
+	// iterate through the map of items (of which there should only be 1)
+	// and return the item ID
+	var itemID int
+	var itemPrice int
+	for _, item := range responseObject {
+		itemID, err = strconv.Atoi(item.ID)
+		itemPrice = item.Price
+		return itemID, itemPrice
+	}
+
+	fmt.Println("Error: item not found in the items database")
+	return -1, -1
+}
+
+func main() {
+	// argLength := len(os.Args[1:])
+	modePtr := flag.String("mode", "exit", "mode of operation")
+
+	gPtr := flag.Bool("g", false, "grand exchange")
+
+	flag.Parse()
+	fmt.Println("Mode: ", *modePtr)
+	var mode string = *modePtr
+	var g bool = *gPtr
+
+	if g {
+		fmt.Println("g enabled!")
+		os.Exit(1)
+	}
+
+	if mode == "exit" {
+		fmt.Println("Program ending, have a nice day!")
+		os.Exit(1)
+	}
+
+	// if argLength < 1 {
+	// 	fmt.Println("Please provide a username")
+	// 	os.Exit(1)
+	// }
+	// var username string = os.Args[1]
+
+	if mode == "skills" || mode == "s" {
+		if len(flag.Args()) < 1 {
+			fmt.Println("Please provide a username")
+			os.Exit(1)
+		}
+		var username string = flag.Args()[0]
+		var responseString = FetchHiscoreData(username)
+		PrintHiscoreData(responseString)
+		os.Exit(1)
+	}
+
+	if mode == "ge" || mode == "g" {
+		if len(flag.Args()) < 1 {
+			fmt.Println("Please provide an item name")
+			os.Exit(1)
+		}
+		var itemName string = strings.Join(flag.Args(), "_")
+		var itemID, itemPrice = FetchItemID(itemName)
+		var itemData = FetchGEData(itemID)
+		itemData.Price = itemPrice
+		PrintGEData(itemData)
+		os.Exit(1)
+	}
+
+	fmt.Println("Done!")
+}
