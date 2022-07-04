@@ -1,0 +1,29 @@
+{
+  "name": "woodcut-cli",
+  "version": "0.1.0",
+  "description": "Woodcut CLI",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zeepk/woodcut-cli.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zeepk/woodcut-cli/issues"
+  },
+  "homepage": "https://github.com/zeepk/woodcut-cli#readme",
+  "dependencies": {
+    "go-npm": "^0.1.9"
+  },
+  "postinstall": "go-npm install",
+  "preuninstall": "go-npm uninstall",
+  "goBinary": {
+    "name": "woodcut",
+    "path": "./bin",
+    "url": "https://github.com/zeepk/woodcut-cli/releases/download/v{{version}}/woodcut-cli_{{version}}_{{platform}}_{{arch}}.tar.gz"
+  }
+}
