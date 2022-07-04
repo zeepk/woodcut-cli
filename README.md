@@ -2,7 +2,7 @@
 
 ## Commands
 
-> All commands begin with `go run .`. Flags are added afterwards, e.g. `go run . -mode=ge lobster`
+> All commands begin with `woodcut` - e.g. `woodcut ge Lobster`
 
 - `-mode=ge item` - returns price info for the item
 - `-mode=skills username` - returns stats for user
