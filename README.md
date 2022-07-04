@@ -1,12 +1,28 @@
 # Woodcut CLI Tool
 
+## Installation
+
+### Homebrew
+
+Run the following series of commands
+
+```
+brew tap zeepk/woodcut-cli https://github.com/zeepk/woodcut-cli
+brew install woodcut-cli
+```
+
+### Manual
+
+Install manually from the [releases page](https://github.com/zeepk/woodcut-cli/releases)
+
 ## Commands
 
-> All commands begin with `woodcut` - e.g. `woodcut ge Lobster`
+> All commands begin with `woodcut` with flags appended - e.g. `woodcut ge Lobster` or `woodcut vos -h`
 
-- `-mode=ge item` - returns price info for the item
-- `-mode=skills username` - returns stats for user
-- `-mode=activities username` - lists recent activities for user
+- `ge [item]` - returns the current Grand Exchange price for that item
+- `stats [username]` - displays that users current skills
+- `vos` - returns current Voice of Seren clans
+  - `-h` - shows the last 10 VoS clan hours
 
 ## Dev Docs
 
