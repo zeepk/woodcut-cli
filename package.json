@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/zeepk/woodcut-cli#readme",
   "dependencies": {
-    "go-npm": "^0.1.9"
+    "@gzuidhof/go-npm": "^0.1.13"
   },
   "postinstall": "go-npm install",
   "preuninstall": "go-npm uninstall",
