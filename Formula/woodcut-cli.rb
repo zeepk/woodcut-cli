@@ -5,20 +5,20 @@
 class WoodcutCli < Formula
   desc "A simple description of your application."
   homepage "https://github.com/zeepk/woodcut-cli"
-  version "0.1.4"
+  version "0.1.6"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/zeepk/woodcut-cli/releases/download/v0.1.4/woodcut-cli_0.1.4_Darwin_arm64.tar.gz"
-      sha256 "b843bb294c46445203a1668d8a8cda1810f7854302b757f6d67926fa47448885"
+      url "https://github.com/zeepk/woodcut-cli/releases/download/v0.1.6/woodcut-cli_0.1.6_Darwin_arm64.tar.gz"
+      sha256 "f155c43f8bd4a18a2659e1f06bc0f67241e74e7f8e12f22cc51baa5afe373f5a"
 
       def install
         bin.install "woodcut"
       end
     end
     if Hardware::CPU.intel?
-      url "https://github.com/zeepk/woodcut-cli/releases/download/v0.1.4/woodcut-cli_0.1.4_Darwin_x86_64.tar.gz"
-      sha256 "87c29e8cb1a2c67c19e39cc183afbf0c03ee35037d30e0e2ce5fb79cf32cd36d"
+      url "https://github.com/zeepk/woodcut-cli/releases/download/v0.1.6/woodcut-cli_0.1.6_Darwin_x86_64.tar.gz"
+      sha256 "c1c96ac53ad4d1414fe55284b6804054287c6c5e8c8ce5301dee67b23c250384"
 
       def install
         bin.install "woodcut"
@@ -27,17 +27,17 @@ class WoodcutCli < Formula
   end
 
   on_linux do
-    if Hardware::CPU.intel?
-      url "https://github.com/zeepk/woodcut-cli/releases/download/v0.1.4/woodcut-cli_0.1.4_Linux_x86_64.tar.gz"
-      sha256 "02ca2307effbe15b650cb69440aa6cbea742275a535ec593176cfd2fe6deaf3a"
+    if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
+      url "https://github.com/zeepk/woodcut-cli/releases/download/v0.1.6/woodcut-cli_0.1.6_Linux_arm64.tar.gz"
+      sha256 "7b3a79207e12233d763c1aca3ecbf6d5082faacc092c1a8a43c433903744abac"
 
       def install
         bin.install "woodcut"
       end
     end
-    if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-      url "https://github.com/zeepk/woodcut-cli/releases/download/v0.1.4/woodcut-cli_0.1.4_Linux_arm64.tar.gz"
-      sha256 "815d0c8a478ee9dcc8015d458ad7a6e76b6c1724f902e2c1fe750d54261926a8"
+    if Hardware::CPU.intel?
+      url "https://github.com/zeepk/woodcut-cli/releases/download/v0.1.6/woodcut-cli_0.1.6_Linux_x86_64.tar.gz"
+      sha256 "f8ec52572a9a91a3ab9ca75a47ff8bbec7fffb7af346684e25c470264c4b2dfe"
 
       def install
         bin.install "woodcut"
