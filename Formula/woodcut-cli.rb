@@ -5,11 +5,11 @@
 class WoodcutCli < Formula
   desc "A simple description of your application."
   homepage "https://github.com/zeepk/woodcut-cli"
-  version "0.1.7"
+  version "0.1.8"
 
   on_macos do
-    url "https://github.com/zeepk/woodcut-cli/releases/download/v0.1.7/woodcut-cli_0.1.7_Darwin_x86_64.tar.gz"
-    sha256 "20f80b3e51eb9c92c1ce31676fa2426e8428e00f0de51cec8c0339e2db1c76f4"
+    url "https://github.com/zeepk/woodcut-cli/releases/download/v0.1.8/woodcut-cli_0.1.8_darwin_amd64.tar.gz"
+    sha256 "4eb9fab899eba562e22b8192b88fc9003d921fef3ba5939ced66f36eef5bed7c"
 
     def install
       bin.install "woodcut"
@@ -28,8 +28,8 @@ class WoodcutCli < Formula
 
   on_linux do
     if Hardware::CPU.intel?
-      url "https://github.com/zeepk/woodcut-cli/releases/download/v0.1.7/woodcut-cli_0.1.7_Linux_x86_64.tar.gz"
-      sha256 "88dd63e15656be84a53b59762ca70663a5d69bea940d8542057d2fbbee53df72"
+      url "https://github.com/zeepk/woodcut-cli/releases/download/v0.1.8/woodcut-cli_0.1.8_linux_amd64.tar.gz"
+      sha256 "fe69cfa686a7a9552792126bb516d8dbe3654defc2ed324485a35f9a0b9d9713"
 
       def install
         bin.install "woodcut"
