@@ -13,6 +13,8 @@ builds:
       - linux
       - windows
       - darwin
+    main: ./main.go
+    binary: woodcut
 archives:
   - replacements:
       darwin: Darwin
