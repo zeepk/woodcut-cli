@@ -21,19 +21,19 @@ archives:
       386: i386
       amd64: x86_64
 checksum:
-  name_template: 'checksums.txt'
+  name_template: "checksums.txt"
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:
   sort: asc
   filters:
     exclude:
-      - '^docs:'
-      - '^test:'
-    brews:
-          - github:
-                      owner: zeepk
-                                  name: woodcut-cli
-                                          folder: Formula
-                                                  homepage: https://github.com/zeepk/woodcut-cli
-                                                          description: A simple description of your application.
+      - "^docs:"
+      - "^test:"
+brews:
+  - tap:
+      owner: zeepk
+      name: woodcut-cli
+    folder: Formula
+    homepage: https://github.com/zeepk/woodcut-cli
+    description: A simple description of your application.
