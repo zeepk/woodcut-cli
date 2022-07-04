@@ -1,6 +1,6 @@
 {
   "name": "woodcut-cli",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Woodcut CLI",
   "main": "index.js",
   "scripts": {
@@ -11,6 +11,9 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/zeepk/woodcut-cli.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   },
   "author": "",
   "license": "ISC",
