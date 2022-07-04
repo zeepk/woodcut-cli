@@ -5,31 +5,39 @@
 class WoodcutCli < Formula
   desc "A simple description of your application."
   homepage "https://github.com/zeepk/woodcut-cli"
-  version "0.1.9"
+  version "0.1.11"
 
   on_macos do
-    url "https://github.com/zeepk/woodcut-cli/releases/download/v0.1.9/woodcut-cli_0.1.9_darwin_amd64.tar.gz"
-    sha256 "0cf715d435042ba3daf79ed2a03af18301e26c80232c0144c139615300233c14"
-
-    def install
-      bin.install "woodcut"
-    end
-
     if Hardware::CPU.arm?
-      def caveats
-        <<~EOS
-          The darwin_arm64 architecture is not supported for the WoodcutCli
-          formula at this time. The darwin_amd64 binary may work in compatibility
-          mode, but it might not be fully supported.
-        EOS
+      url "https://github.com/zeepk/woodcut-cli/releases/download/v0.1.11/woodcut-cli_0.1.11_darwin_arm64.tar.gz"
+      sha256 "4852d2f7762cf44bbd52281a85af0bb5c5296a89a3bc4e51a875084a8a5a4449"
+
+      def install
+        bin.install "woodcut"
+      end
+    end
+    if Hardware::CPU.intel?
+      url "https://github.com/zeepk/woodcut-cli/releases/download/v0.1.11/woodcut-cli_0.1.11_darwin_amd64.tar.gz"
+      sha256 "2f27f93b72735945e95d2fb2144ee2f466242778f3eadf0938342e5a4efb7bfc"
+
+      def install
+        bin.install "woodcut"
       end
     end
   end
 
   on_linux do
+    if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
+      url "https://github.com/zeepk/woodcut-cli/releases/download/v0.1.11/woodcut-cli_0.1.11_linux_arm64.tar.gz"
+      sha256 "1225b160e1968ca89c80d9e7c61a0add124ec1ba1435871b57c9cdd42b5e57cf"
+
+      def install
+        bin.install "woodcut"
+      end
+    end
     if Hardware::CPU.intel?
-      url "https://github.com/zeepk/woodcut-cli/releases/download/v0.1.9/woodcut-cli_0.1.9_linux_amd64.tar.gz"
-      sha256 "48a1d124b8337acda591e7202489b7639364401d5b367c2e91fc498093f82500"
+      url "https://github.com/zeepk/woodcut-cli/releases/download/v0.1.11/woodcut-cli_0.1.11_linux_amd64.tar.gz"
+      sha256 "c3385f761720d9b57a789d9dfb1df72c4454bc8b52058ddc63a6c010a2738874"
 
       def install
         bin.install "woodcut"
