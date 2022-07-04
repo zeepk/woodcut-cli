@@ -1,6 +1,6 @@
 {
   "name": "@zeepk/woodcut-cli",
-  "version": "0.1.9",
+  "version": "0.1.11",
   "description": "Woodcut CLI tool for RuneScape",
   "main": "index.js",
   "scripts": {
