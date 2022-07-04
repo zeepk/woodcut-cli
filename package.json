@@ -1,5 +1,5 @@
 {
-  "name": "woodcut-cli",
+  "name": "@zeepk/woodcut-cli",
   "version": "0.1.9",
   "description": "Woodcut CLI",
   "main": "index.js",
