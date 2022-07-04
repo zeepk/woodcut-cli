@@ -13,8 +13,6 @@ builds:
       - linux
       - windows
       - darwin
-    goarch:
-      - amd64
     main: ./main.go
     binary: woodcut
 checksum:
