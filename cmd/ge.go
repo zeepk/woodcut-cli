@@ -14,6 +14,7 @@ import (
 	"strconv"
 	"strings"
 	"text/tabwriter"
+	"time"
 
 	"github.com/dustin/go-humanize"
 	"github.com/spf13/cobra"
@@ -26,11 +27,22 @@ var geCmd = &cobra.Command{
 	Long:  `Grand Exchange data (price)`,
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+		start := time.Now()
 		var itemName string = strings.Join(args, " ")
-		var itemID, itemPrice = FetchItemID(itemName)
-		var itemData = FetchGEData(itemID)
-		itemData.Price = itemPrice
-		PrintGEData(itemData)
+		var itemPrice = FetchItemPrice(itemName)
+		// var itemID, itemPrice = FetchItemID(itemName)
+		// var itemData = FetchGEData(itemID)
+		// itemData.Price = itemPrice
+		// PrintGEData(itemData)
+		w := tabwriter.NewWriter(os.Stdout, 1, 1, 1, ' ', 0)
+		var price = humanize.Comma(int64(itemPrice))
+
+		fmt.Fprintln(w, "Item:", "\t", itemName)
+		fmt.Fprintln(w, "Price:", "\t", price+"gp")
+		w.Flush()
+		t := time.Now()
+		elapsed := t.Sub(start)
+		fmt.Println("Time elapsed:", elapsed)
 	},
 }
 
@@ -68,6 +80,52 @@ type ItemDataResponse struct {
 	// Current   ItemCurrentPrice `json:"current"`
 }
 
+func FetchItemPrice(itemName string) int {
+	// initialize http client
+	client := &http.Client{}
+
+	// generate URL
+	var url string = ItemIDURL + itemName
+
+	// create request
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+
+	// execute request
+	resp, err := client.Do(req)
+	// defer ~= await the line above
+	defer resp.Body.Close()
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+	if resp.StatusCode == 404 {
+		fmt.Println("Error: item not found in the items database")
+		os.Exit(1)
+	}
+
+	// TODO: learn more about IO and buffers
+	body, readErr := io.ReadAll(resp.Body)
+	if readErr != nil {
+		log.Fatal(readErr)
+	}
+
+	// unmarshal the json into a map of items (even though we only expect 1)
+	var responseObject = make(map[string]ItemIDResponse)
+	json.Unmarshal(body, &responseObject)
+
+	// iterate through the map of items (of which there should only be 1)
+	// and return the item ID
+	var itemPrice int
+	for _, item := range responseObject {
+		itemPrice = item.Price
+		return itemPrice
+	}
+
+	fmt.Println("Error: item not found in the items database")
+	return -1
+}
 func FetchItemID(itemName string) (int, int) {
 	// initialize http client
 	client := &http.Client{}

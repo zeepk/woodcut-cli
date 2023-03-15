@@ -44,5 +44,5 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().BoolVarP(&IsCool, "cool", "c", false, "is cool?")
+	// rootCmd.Flags().BoolVarP(&IsCool, "cool", "c", false, "is cool?")
 }

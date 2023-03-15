@@ -1,21 +1,41 @@
-/*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
-
-*/
 package cmd
 
 import (
-	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
+	"log"
 	"net/http"
 	"os"
-	"strconv"
 	"strings"
 	"text/tabwriter"
 
 	"github.com/dustin/go-humanize"
 	"github.com/spf13/cobra"
 )
+
+type RawSkill struct {
+	SkillId   int `json:"skillId"`
+	Rank      int `json:"rank"`
+	Level     int `json:"level"`
+	Xp        int `json:"xp"`
+	DayGain   int `json:"dayGain"`
+	WeekGain  int `json:"weekGain"`
+	MonthGain int `json:"monthGain"`
+	YearGain  int `json:"yearGain"`
+}
+
+type Skill struct {
+	SkillId int `json:"skillId"`
+	Xp      int `json:"xp"`
+	DayGain int `json:"dayGain"`
+}
+
+type GainsResponse struct {
+	Success bool       `json:"success"`
+	Price   string     `json:"message"`
+	Skills  []RawSkill `json:"skills"`
+}
 
 var statsCmd = &cobra.Command{
 	Use:   "stats",
@@ -30,8 +50,8 @@ var statsCmd = &cobra.Command{
 			fmt.Println("Error: username must be less than 12 characters")
 			os.Exit(1)
 		}
-		var responseString = FetchHiscoreData(username)
-		PrintHiscoreData(responseString)
+		var skills = FetchHiscoreData(username)
+		PrintHiscoreData(skills)
 	},
 }
 
@@ -49,12 +69,14 @@ func init() {
 	// statsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-var HiscoresURL string = "https://secure.runescape.com/m=hiscore/index_lite.ws?player="
-var Skills []string = []string{"Overall", "Attack", "Defence", "Strength", "Hitpoints", "Ranged", "Prayer", "Magic", "Cooking", "Woodcutting", "Fletching", "Fishing", "Firemaking", "Crafting", "Smithing", "Mining", "Herblore", "Agility", "Thieving", "Slayer", "Farming", "Runecrafting", "Hunter", "Construction", "Summoning", "Dungeoneering", "Divination", "Invention"}
+var GainsURL string = "https://www.woodcut.dev/api/rs3/player?username="
+var Skills []string = []string{"Overall", "Attack", "Defence", "Strength", "Hitpoints", "Ranged", "Prayer", "Magic", "Cooking", "Woodcutting", "Fletching", "Fishing", "Firemaking", "Crafting", "Smithing", "Mining", "Herblore", "Agility", "Thieving", "Slayer", "Farming", "Runecrafting", "Hunter", "Construction", "Summoning", "Dungeoneering", "Divination", "Invention", "Archaeology"}
 
-func FetchHiscoreData(username string) string {
+func FetchHiscoreData(username string) []Skill {
 	client := &http.Client{}
-	var url string = HiscoresURL + username
+	var formattedUsername = strings.ReplaceAll(username, " ", "+")
+	var url string = GainsURL + formattedUsername
+	fmt.Println("Fetching data for " + formattedUsername + "...")
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		fmt.Print(err.Error())
@@ -69,26 +91,35 @@ func FetchHiscoreData(username string) string {
 		os.Exit(1)
 	}
 
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(resp.Body)
-	responseString := buf.String()
-	return responseString
+	body, readErr := io.ReadAll(resp.Body)
+	if readErr != nil {
+		log.Fatal(readErr)
+	}
+
+	// unmarshal json
+	var responseObject GainsResponse
+	json.Unmarshal(body, &responseObject)
+
+	var skills []Skill
+	for _, skill := range responseObject.Skills {
+		skills = append(skills, Skill{SkillId: skill.SkillId, Xp: skill.Xp, DayGain: skill.DayGain})
+	}
+
+	return skills
 }
 
-func PrintHiscoreData(responseString string) {
+func PrintHiscoreData(skills []Skill) {
 	w := tabwriter.NewWriter(os.Stdout, 1, 1, 1, ' ', 0)
-	var responseLines []string = strings.Split(responseString, "\n")
-	for i := 0; i < len(Skills); i++ {
-		var responseLineItems []string = strings.Split(responseLines[i], ",")
-		// [2] is the skill xp, base 10, 64bit int
-		xp, err := strconv.ParseInt(responseLineItems[2], 10, 64)
-		if err != nil {
-			fmt.Print(err.Error())
-			continue
+	for i := 0; i < len(skills); i++ {
+		var xpString = humanize.Comma(int64(skills[i].Xp))
+		var dayGainString string
+		if skills[i].DayGain <= 0 {
+			dayGainString = ""
+		} else {
+			dayGainString = "+" + humanize.Comma(int64(skills[i].DayGain)) + "xp"
 		}
 
-		var xpString = humanize.Comma(xp)
-		fmt.Fprintln(w, Skills[i], "\t", xpString+"xp")
+		fmt.Fprintln(w, Skills[i], "\t", xpString+"xp", "\t", dayGainString)
 	}
 	w.Flush()
 	return
